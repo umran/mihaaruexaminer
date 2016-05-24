@@ -1,0 +1,30 @@
+{
+  "name": "mihaaruexaminer",
+  "version": "1.0.0",
+  "description": "spider for mihaaru news",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/umran/mihaaruexaminer.git"
+  },
+  "keywords": [
+    "mihaaruexaminer",
+    "mihaaru",
+    "mihaaru",
+    "news"
+  ],
+  "author": "Umran Hussain",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/umran/mihaaruexaminer/issues"
+  },
+  "homepage": "https://github.com/umran/mihaaruexaminer#readme",
+  "dependencies": {
+    "async": "^2.0.0-rc.5",
+    "cheerio": "^0.20.0",
+    "request": "^2.72.0"
+  }
+}
