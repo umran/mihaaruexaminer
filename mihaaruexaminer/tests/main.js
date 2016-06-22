@@ -1,6 +1,6 @@
 var async = require('async')
-var Getter = require('../getter')
-var Extractor = require('../extractor')
+var Getter = require('../modules/getter')
+var Extractor = require('../modules/extractor')
 
 var getter = new Getter()
 
