@@ -82,7 +82,7 @@ Extractor.prototype.matchMain = function($) {
 		body.main.push($(elem).text())
 	})
 	
-	return {
+	var response = {
 		language: language,
 		title: title,
 		author: author,
@@ -90,6 +90,8 @@ Extractor.prototype.matchMain = function($) {
 		tags: tags,
 		body: body
 	}
+	
+	return response
 }
 
 Extractor.prototype.matchEn = function($) {
@@ -128,7 +130,7 @@ Extractor.prototype.matchEn = function($) {
 		body.main.push($(elem).text())
 	})
 	
-	return {
+	var response = {
 		language: language,
 		title: title,
 		author: author,
@@ -136,6 +138,8 @@ Extractor.prototype.matchEn = function($) {
 		tags: tags,
 		body: body
 	}
+	
+	return response
 }
 
 Extractor.prototype.extractArticle = function($) {

@@ -1,10 +1,10 @@
 var async = require('async')
-var Getter = require('./lib/getter')
-var Extractor = require('./lib/extractor')
+var Getter = require('./src/getter')
+var Extractor = require('./src/extractor')
 
 var getter = new Getter()
 
-var resource = { url: 'http://mihaaru.com/', domain: 'mihaaru.com', path: '/' }
+var resource = { url: 'http://www.mihaaru.com/news/1873', domain: 'www.mihaaru.com', path: '/news/1873' }
 
 getter.get(resource, function(err, res) {
 	
@@ -35,9 +35,8 @@ getter.get(resource, function(err, res) {
 
 	if(article === false) {
 		console.log('The requested page is not an article')
-		return
+	} else {
+		console.log(article)
 	}
-
-	console.log(article.body.main)
 	
 })
