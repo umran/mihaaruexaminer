@@ -1,0 +1,1 @@
+var Getter = require('./getter')

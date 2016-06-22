@@ -1,0 +1,1 @@
+var Extractor = require('./extractor')
