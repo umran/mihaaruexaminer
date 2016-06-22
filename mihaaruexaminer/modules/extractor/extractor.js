@@ -143,8 +143,6 @@ Extractor.prototype.matchEn = function($) {
 }
 
 Extractor.prototype.extractArticle = function($) {
-
-	var articleObject
 	
 	if($('.article-details').find('article').length === 1) {
 		return this.matchMain($)
