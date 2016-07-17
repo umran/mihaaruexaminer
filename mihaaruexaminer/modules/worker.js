@@ -2,10 +2,12 @@ var async = require('async')
 var Getter = require('./getter')
 var Extractor = require('./extractor')
 var RedisQueue = require('./redis_queue')
+var AsyncIO = require('./async_io')
 
 var getter = new Getter()
 var extractor = new Extractor()
 var redisQueue = new RedisQueue()
+var asyncIO = new AsyncIO()
 
 function Worker() {
 }
@@ -26,19 +28,11 @@ Worker.prototype.work = function(resource, callback) {
 		if(res.code === 1) {
 			status = 'PENDING'
 			
-			// prime resource for a second attempt or discard it
-			ioOps.push(function(callback){
-				redisQueue.markRetryOrDone(JSON.stringify(res.resource), function(err){
-					if(err) {
-						callback(err)
-						return
-					}
-					callback()
-				})
-			})
+			// async io
+			asyncIO.markRetryOrDone(res.resource)
 			
-			// execute io in parallel
-			async.parallel(ioOps, function(err){
+			// async io exec
+			asyncIO.execute(function(err, res){
 				if(err) {
 					callback(err)
 					return
@@ -50,7 +44,7 @@ Worker.prototype.work = function(resource, callback) {
 			return
 		}
 
-		// extract current domain
+		// set current domain
 		var currentDomain = res.resource.domain
 
 		// proceed to initialize response as a dom object
@@ -63,16 +57,10 @@ Worker.prototype.work = function(resource, callback) {
 		console.log('LINKS FOUND: ' + links.length)
 		
 		links.forEach(function(link){
-			//put link in redis queue
-			ioOps.push(function(callback){
-				redisQueue.markInq(JSON.stringify(link), function(err){
-					if(err) {
-						callback(err)
-						return
-					}
-					callback()
-				})
-			})
+			
+			//async io
+			asyncIO.markInq(link)
+			
 		})
 
 		// get article if article
@@ -88,25 +76,15 @@ Worker.prototype.work = function(resource, callback) {
 			article.header = res.resource
 		}
 		
-		// mark as done in redis
+		// async io
+		asyncIO.markDone(res.resource)
 		
-		ioOps.push(function(callback){
-			redisQueue.markDone(JSON.stringify(res.resource), function(err){
-				if(err) {
-					callback(err)
-					return
-				}
-				callback()
-			})
-		})
-		
-		// execute io in parallel
-		async.parallel(ioOps, function(err){
+		// async io exec
+		asyncIO.execute(function(err, res){
 			if(err) {
 				callback(err)
 				return
 			}
-			
 			callback(null, status)
 		})
 
