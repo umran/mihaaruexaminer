@@ -1,5 +1,5 @@
 var cheerio = require('cheerio')
-var UrlParser = require('../urlparser')
+var UrlParser = require('./urlparser')
 var urlParser = new UrlParser()
 
 function Extractor() {
@@ -68,8 +68,17 @@ Extractor.prototype.matchMain = function($) {
 	// to be normalized across domains
 	var tags = []
 	
+	// collate meta data
+	var meta = {
+		language: language,
+		title: title,
+		author: author,
+		date: date,
+		tags: tags
+	}
+	
 	// extract body elements
-	var body = []
+	var body = {}
 	body.main = []
 	body.miscellaneous = []
 	$('.article-details article').children().each(function(i, elem){
@@ -83,11 +92,7 @@ Extractor.prototype.matchMain = function($) {
 	})
 	
 	var response = {
-		language: language,
-		title: title,
-		author: author,
-		date: date,
-		tags: tags,
+		meta: meta,
 		body: body
 	}
 	
@@ -107,7 +112,7 @@ Extractor.prototype.matchEn = function($) {
 	// extract title
 	var title = $('#main-content article header .entry-title').text()
 	
-	//extract tags
+	// extract tags
 	var tags = []
 	$('#main-content article .entry-tags').children().each(function(i, elem){
 		if($(elem).is('a')) {
@@ -115,6 +120,15 @@ Extractor.prototype.matchEn = function($) {
 		}
 	})
 	
+	// collate meta data
+	var meta = {
+		language: language,
+		title: title,
+		author: author,
+		date: date,
+		tags: tags
+	}
+
 	// extract body elements
 	var body = {}
 	body.main = []
@@ -131,11 +145,7 @@ Extractor.prototype.matchEn = function($) {
 	})
 	
 	var response = {
-		language: language,
-		title: title,
-		author: author,
-		date: date,
-		tags: tags,
+		meta: meta,
 		body: body
 	}
 	
