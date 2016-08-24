@@ -4,6 +4,9 @@ function RedisQueue() {
 }
 
 RedisQueue.prototype.markInq = function(url, callback) {
+	
+	url = JSON.stringify(url)
+	
 	client.get(url, function(err, res){
 		if(err) {
 			callback(err)
@@ -26,6 +29,9 @@ RedisQueue.prototype.markInq = function(url, callback) {
 }
 
 RedisQueue.prototype.markRetryOrDone = function(url, callback) {
+	
+	url = JSON.stringify(url)
+	
 	client.get(url, function(err, res){
 		if(err) {
 			callback(err)
@@ -53,6 +59,9 @@ RedisQueue.prototype.markRetryOrDone = function(url, callback) {
 }
 
 RedisQueue.prototype.markDone = function(url, callback) {
+	
+	url = JSON.stringify(url)
+	
 	client.set(url, 'done', function(err){
 		if(err){
 			callback(err)

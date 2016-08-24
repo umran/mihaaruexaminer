@@ -1,5 +1,5 @@
 var cheerio = require('cheerio')
-var UrlParser = require('./urlparser')
+var UrlParser = require('./url_parser')
 var urlParser = new UrlParser()
 
 function Extractor() {

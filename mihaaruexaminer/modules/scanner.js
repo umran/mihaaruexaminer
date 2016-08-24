@@ -18,9 +18,6 @@ Scanner.prototype.fetchNext = function(callback) {
 		var cursor = res[0]
 		var batch = res[1]
 		
-		// debugging
-		console.log('BATCH: ' + batch.length)
-		
 		//put redis operations in a parallel queue
 		batch.forEach(function(url){
 			calls.push(function(callback){

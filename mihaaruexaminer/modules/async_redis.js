@@ -1,15 +1,16 @@
 var async = require('async')
 var RedisQueue = require('./redis_queue')
 
+// Initialize modules
 var redisQueue = new RedisQueue()
 
-AsyncIO = function() {
+AsyncRedis = function() {
 	this._tasks = []
 }
 
-AsyncIO.prototype.markInq = function(resource) {
+AsyncRedis.prototype.markInq = function(resource) {
 	this._tasks.push(function(callback){
-		redisQueue.markInq(JSON.stringify(resource), function(err){
+		redisQueue.markInq(resource, function(err){
 			if(err) {
 				callback(err)
 				return
@@ -19,9 +20,9 @@ AsyncIO.prototype.markInq = function(resource) {
 	})
 }
 
-AsyncIO.prototype.markDone = function(resource) {
+AsyncRedis.prototype.markDone = function(resource) {
 	this._tasks.push(function(callback){
-		redisQueue.markDone(JSON.stringify(resource), function(err){
+		redisQueue.markDone(resource, function(err){
 			if(err) {
 				callback(err)
 				return
@@ -31,9 +32,9 @@ AsyncIO.prototype.markDone = function(resource) {
 	})
 }
 
-AsyncIO.prototype.markRetryOrDone = function(resource) {
+AsyncRedis.prototype.markRetryOrDone = function(resource) {
 	this._tasks.push(function(callback){
-		redisQueue.markRetryOrDone(JSON.stringify(resource), function(err){
+		redisQueue.markRetryOrDone(resource, function(err){
 			if(err) {
 				callback(err)
 				return
@@ -43,7 +44,7 @@ AsyncIO.prototype.markRetryOrDone = function(resource) {
 	})
 }
 
-AsyncIO.prototype.execute = function(callback) {
+AsyncRedis.prototype.execute = function(callback) {
 	async.parallel(this._tasks, function(err){
 		if(err) {
 			callback(err)
@@ -53,3 +54,5 @@ AsyncIO.prototype.execute = function(callback) {
 		callback()
 	})
 }
+
+module.exports = AsyncRedis

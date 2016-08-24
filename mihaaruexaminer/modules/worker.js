@@ -1,13 +1,18 @@
 var async = require('async')
 var Getter = require('./getter')
 var Extractor = require('./extractor')
-var RedisQueue = require('./redis_queue')
-var AsyncIO = require('./async_io')
+var AsyncRedis = require('./async_redis')
+var AsyncMongo = require('./async_mongo')
+var MongooseOps = require('./mongoose_operations')
+var CryptoOps = require('./crypto_operations')
 
+// Instantiate modules
 var getter = new Getter()
 var extractor = new Extractor()
-var redisQueue = new RedisQueue()
-var asyncIO = new AsyncIO()
+var asyncRedis = new AsyncRedis()
+var asyncMongo = new AsyncMongo(asyncRedis)
+var cryptoOps = new CryptoOps()
+var mongooseOps = new MongooseOps()
 
 function Worker() {
 }
@@ -23,16 +28,15 @@ Worker.prototype.work = function(resource, callback) {
 		}
 		
 		var status
-		var ioOps = []
 		
 		if(res.code === 1) {
 			status = 'PENDING'
 			
 			// async io
-			asyncIO.markRetryOrDone(res.resource)
+			asyncRedis.markRetryOrDone(res.resource)
 			
 			// async io exec
-			asyncIO.execute(function(err, res){
+			asyncRedis.execute(function(err, res){
 				if(err) {
 					callback(err)
 					return
@@ -56,12 +60,13 @@ Worker.prototype.work = function(resource, callback) {
 		// debugging
 		console.log('LINKS FOUND: ' + links.length)
 		
+		// only bit i'm not proud of
 		links.forEach(function(link){
 			
-			//async io
-			asyncIO.markInq(link)
+			asyncMongo.saveUrl(link)
 			
 		})
+		// end of bit i'm not proud of
 
 		// get article if article
 		var article = extractor.extractArticle($)
@@ -74,13 +79,19 @@ Worker.prototype.work = function(resource, callback) {
 			
 			// append url information to article
 			article.header = res.resource
+			
+			// append url hash to header
+			article.header.urlHash = cryptoOps.sha256(JSON.stringify(res.resource))
+			
+			// save document to mongodb
+			asyncMongo.saveDoc(article)
 		}
 		
 		// async io
-		asyncIO.markDone(res.resource)
+		asyncRedis.markDone(res.resource)
 		
 		// async io exec
-		asyncIO.execute(function(err, res){
+		asyncRedis.execute(function(err, res){
 			if(err) {
 				callback(err)
 				return
