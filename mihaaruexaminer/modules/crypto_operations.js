@@ -10,4 +10,4 @@ CryptoOps.prototype.sha256 = function(value) {
 	return hash.digest('hex')
 }
 
-Module.exports = CryptoOps
+module.exports = CryptoOps

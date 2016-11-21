@@ -1,56 +1,4 @@
-var cheerio = require('cheerio')
-var UrlParser = require('./url_parser')
-var urlParser = new UrlParser()
-
-function Extractor() {
-}
-
-Extractor.prototype.load = function(doc) {
-	return cheerio.load(doc, {
-		normalizeWhitespace: true
-	})
-}
-
-Extractor.prototype.extractLinks = function($, currentDomain) {
-
-	var links = []
-
-	$('a').each(function(i, link) {
-		
-		var parsedLink = urlParser.parse($(link).attr('href'))
-		if(parsedLink === null) {
-			return
-		}
-	
-		var domain = currentDomain
-		var path = '/'
-	
-		if (parsedLink[1] === undefined) {
-			path = parsedLink[3]
-		} else {
-			domain = parsedLink[1]
-			if (parsedLink[2] !== undefined) {
-				path = parsedLink[2]
-			}
-		}
-	
-		// construct full url
-		var url = 'http://' + domain + path
-
-		var resource = {
-			url: url,
-			domain: domain,
-			path: path
-		}
-		
-		links.push(resource)
-		
-	})
-
-	return links
-}
-
-Extractor.prototype.matchMain = function($) {
+function matchDv($) {
 	// set language to dhivehi
 	var language = 'dhivehi'
 	
@@ -81,7 +29,6 @@ Extractor.prototype.matchMain = function($) {
 	var body = {}
 	body.main = []
 	body.miscellaneous = []
-	body.main_fulltext = ''
 	$('.article-details article').children().each(function(i, elem){
 		
 		// skip if image or ad
@@ -90,7 +37,6 @@ Extractor.prototype.matchMain = function($) {
 			return
 		}
 		body.main.push($(elem).text())
-		body.main_fulltext += $(elem).text() + " "
 	})
 	
 	var response = {
@@ -101,7 +47,7 @@ Extractor.prototype.matchMain = function($) {
 	return response
 }
 
-Extractor.prototype.matchEn = function($) {
+function matchEn($) {
 	// set language to english
 	var language = 'english'
 	
@@ -135,7 +81,6 @@ Extractor.prototype.matchEn = function($) {
 	var body = {}
 	body.main = []
 	body.miscellaneous = []
-	body.main_fulltext = ''
 	$('#main-content article .entry-content').children().each(function(i, elem){
 		
 		// skip if image or ad
@@ -145,7 +90,6 @@ Extractor.prototype.matchEn = function($) {
 		}
 		
 		body.main.push($(elem).text())
-		body.main_fulltext += $(elem).text() + " "
 	})
 	
 	var response = {
@@ -156,18 +100,5 @@ Extractor.prototype.matchEn = function($) {
 	return response
 }
 
-Extractor.prototype.extractArticle = function($) {
-	
-	if($('.article-details').find('article').length === 1) {
-		return this.matchMain($)
-	}
-		
-	if($('article').find('.entry-content').length === 1) {
-		return this.matchEn($)
-	}
-	
-	return false
-
-}
-
-module.exports = Extractor
+exports.matchEn = matchEn
+exports.matchDv = matchDv

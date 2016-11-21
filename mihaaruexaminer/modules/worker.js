@@ -1,7 +1,6 @@
 var async = require('async')
 var Getter = require('./getter')
 var Extractor = require('./extractor')
-var AsyncRedis = require('./async_redis')
 var AsyncMongo = require('./async_mongo')
 var MongooseOps = require('./mongoose_operations')
 var CryptoOps = require('./crypto_operations')
@@ -9,8 +8,8 @@ var CryptoOps = require('./crypto_operations')
 // Instantiate modules
 var getter = new Getter()
 var extractor = new Extractor()
-var asyncRedis = new AsyncRedis()
-var asyncMongo = new AsyncMongo(asyncRedis)
+
+var asyncMongo = new AsyncMongo()
 var cryptoOps = new CryptoOps()
 var mongooseOps = new MongooseOps()
 
@@ -33,10 +32,10 @@ Worker.prototype.work = function(resource, callback) {
 			status = 'PENDING'
 			
 			// async io
-			asyncRedis.markRetryOrDone(res.resource)
+			asyncMongo.markRetryOrDone(res.resource)
 			
 			// async io exec
-			asyncRedis.execute(function(err, res){
+			asyncMongo.execute(function(err, res){
 				if(err) {
 					callback(err)
 					return
@@ -62,7 +61,7 @@ Worker.prototype.work = function(resource, callback) {
 		
 		// only bit i'm not proud of
 		links.forEach(function(link){
-			
+
 			asyncMongo.saveUrl(link)
 			
 		})
@@ -78,7 +77,8 @@ Worker.prototype.work = function(resource, callback) {
 			status = 'HIT'
 			
 			// append url information to article
-			article.header = res.resource
+			article.header = {}
+			article.header.url = res.resource
 			
 			// append url hash to header
 			article.header.urlHash = cryptoOps.sha256(JSON.stringify(res.resource))
@@ -88,15 +88,15 @@ Worker.prototype.work = function(resource, callback) {
 		}
 		
 		// async io
-		asyncRedis.markDone(res.resource)
-		
-		// async io exec
-		asyncRedis.execute(function(err, res){
+		asyncMongo.execute(function(err) {
+
 			if(err) {
 				callback(err)
 				return
 			}
+			
 			callback(null, status)
+			
 		})
 
 	})

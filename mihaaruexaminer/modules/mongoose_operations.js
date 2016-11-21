@@ -1,4 +1,4 @@
-var mongoose = require('mongoose')
+var mongoose = require('../lib/mongoose_client')
 var CryptoOps = require('./crypto_operations')
 
 // Instantiate Modules
@@ -15,56 +15,59 @@ MongooseOps.prototype.saveUrl = function(url, callback) {
 	
 	url = JSON.stringify(url)
 	var hash = cryptoOps.sha256(url)
-	
-	UrlHash.findOne(hash, function(err, res){
 		
+	// prepare to write url to disk
+	var record = new UrlHash({ urlHash: hash })
+	
+	// attempt to write url to disk
+	record.save(function(err){
 		if(err) {
+			if(err.code === 11000) {					
+				var response = {}
+				response.code = 0
+				response.message = "URL EXISTS"
+				
+				callback(null, response)
+				return
+			}
+			
 			callback(err)
 			return
 		}
 		
-		if(res) {
-			var response = {}
-			response.code = 0
-			response.message = "RECORD EXISTS"
-			
-			callback(null, response)
-			return
-		}
+		var response = {}
+		response.code = 1
+		response.message = "URL SAVED TO DISK"
 		
-		// prepare to write url to disk
-		var record = new UrlHash({ urlHash: hash })
+		callback(null, response)
 		
-		// attempt to write url to disk
-		record.save(function(err){
-			if(err) {
-				if(err.code === 11000) {					
-					var response = {}
-					response.code = 0
-					response.message = "RECORD EXISTS"
-					
-					callback(null, response)
-					return
-				}
-				
-				callback(err)
-				return
-			}
-			
-			var response = {}
-			response.code = 1
-			response.message = "RECORD SAVED TO DISK"
-			
-			callback(null, response)
-			
-		})
-	
 	})
 }
 
 MongooseOps.prototype.saveDoc = function(document, callback) {
-	var urlHash = document.header.urlHash
-	var doc = new Doc({urlHash: urlHash, doc: document})
+	var doc = new Doc(document)
+	
+	doc.save(function(err) {
+		if(err) {
+			if(err.code === 11000) {					
+				var response = {}
+				response.code = 0
+				response.message = "DOC EXISTS"
+					
+				callback(null, response)
+				return
+			}
+				
+			callback(err)
+			return
+		}
+		
+		var response = {}
+		response.code = 1
+		response.message = "DOC SAVED TO DISK"
+			
+		callback(null, response)	
+	})
 }
 
 module.exports = MongooseOps

@@ -5,6 +5,7 @@ var mongoose = require('mongoose')
 var dbURI = 'mongodb://localhost/newspeak'
 
 // Create the database connection 
+mongoose.Promise = global.Promise
 mongoose.connect(dbURI)
 
 // CONNECTION EVENTS
@@ -22,3 +23,5 @@ mongoose.connection.on('error',function (err) {
 mongoose.connection.on('disconnected', function () {  
   console.log('Mongoose default connection disconnected'); 
 })
+
+module.exports = mongoose

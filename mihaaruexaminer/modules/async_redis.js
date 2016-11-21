@@ -9,7 +9,8 @@ AsyncRedis = function() {
 }
 
 AsyncRedis.prototype.markInq = function(resource) {
-	this._tasks.push(function(callback){
+	var self = this
+	self._tasks.push(function(callback){
 		redisQueue.markInq(resource, function(err){
 			if(err) {
 				callback(err)
@@ -21,7 +22,8 @@ AsyncRedis.prototype.markInq = function(resource) {
 }
 
 AsyncRedis.prototype.markDone = function(resource) {
-	this._tasks.push(function(callback){
+	var self = this
+	self._tasks.push(function(callback){
 		redisQueue.markDone(resource, function(err){
 			if(err) {
 				callback(err)
@@ -33,7 +35,8 @@ AsyncRedis.prototype.markDone = function(resource) {
 }
 
 AsyncRedis.prototype.markRetryOrDone = function(resource) {
-	this._tasks.push(function(callback){
+	var self = this
+	self._tasks.push(function(callback){
 		redisQueue.markRetryOrDone(resource, function(err){
 			if(err) {
 				callback(err)
@@ -45,7 +48,8 @@ AsyncRedis.prototype.markRetryOrDone = function(resource) {
 }
 
 AsyncRedis.prototype.execute = function(callback) {
-	async.parallel(this._tasks, function(err){
+	var self = this
+	async.parallel(self._tasks, function(err){
 		if(err) {
 			callback(err)
 			return
