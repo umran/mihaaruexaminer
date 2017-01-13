@@ -5,7 +5,7 @@ var Scanner = require('../modules/scanner')
 var worker = new Worker()
 var scanner = new Scanner()
 
-var seed = { url: 'http://www.mihaaru.com', domain: 'www.mihaaru.com', path: '/' }
+var seeds = [{ url: 'http://www.mihaaru.com', domain: 'www.mihaaru.com', path: '/' }, { url: 'http://en.mihaaru.com', domain: 'en.mihaaru.com', path: '/' }]
 
 var q = async.queue(function(task, callback){
 	worker.work(task, function(err, res) {
@@ -40,7 +40,7 @@ q.drain = function(){
 	})
 }
 
-q.push(seed, function(err, res){
+q.push(seeds, function(err, res){
 	if(err) {
 		console.log(err)
 		return
