@@ -15,7 +15,7 @@ var q = async.queue(function(task, callback){
 		}
 		callback(null, res)
 	})
-}, 1)
+}, 5)
 
 q.drain = function(){
 	scanner.fetchNext(function(err, res){
@@ -26,7 +26,7 @@ q.drain = function(){
 
 		// debugging
 		console.log('NEW TASKS: ' + res.length)
-	
+
 		q.push(res, function(err, res){
 			if(err) {
 				console.log(err)
@@ -34,7 +34,7 @@ q.drain = function(){
 			}
 			console.log(res)
 		})
-	
+
 		// debugging
 		console.log('NEW TASKS QUEUED: ' + q.length())
 	})
